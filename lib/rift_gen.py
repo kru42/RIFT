@@ -63,17 +63,17 @@ class RIFTGenerator:
             sql_path = os.path.join(sql_folder, sql_fname)
             idb_path = os.path.join(idb_folder, idb_fname)
 
-            self.logger.debug(f"Generating {sql_path} ..")
+            self.logger.info(f"Generating {sql_path} ..")
             cmd = [self.rift_config.idat, "-A", "-B", f"-S{self.rift_config.diaphora}", f"-o{idb_path}", coff_file]
             self.set_dph_export_file(sql_path)
-            utils.exec_cmd(cmd, True, False)
+            utils.exec_cmd(cmd, True, True)
 
     def dph_diff(self, target_sqlite, src_sqlite_files, sql_diff_folder):
         target_base = os.path.splitext(os.path.basename(target_sqlite))[0]
         for src_sqlite in src_sqlite_files:
             src_base = os.path.splitext(os.path.basename(src_sqlite))[0]
             output_path = os.path.join(sql_diff_folder, f"{target_base}_{src_base}.sqlite")
-            self.logger.debug(f"Generating {output_path}, target = {target_sqlite}, source = {src_sqlite}")
+            self.logger.info(f"Generating {output_path}, target = {target_sqlite}, source = {src_sqlite}")
             utils.exec_cmd(["py", self.rift_config.diaphora, "-o", output_path, target_sqlite, src_sqlite], capture_output=False, check=False)
         return True
 

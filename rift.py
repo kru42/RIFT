@@ -125,9 +125,7 @@ def gen_diff_json(rift_fs, diff_output_name):
 def main(args):
     """Main."""
     cfg_path = ""
-    # input = args.input
     input = os.path.abspath(os.path.expanduser(args.input))
-    # output_folder = args.output
     output_folder = os.path.abspath(os.path.expanduser(args.output))
     logger = utils.get_logger(args.log, args.verbose)
 
@@ -172,7 +170,6 @@ def main(args):
             logger.error(f"Failed cleaning up work environment {rift_fs.work_folder}!")
             return 0
 
-
     if not rift_fs.init_cargo_project():
         return 0
     
@@ -186,7 +183,7 @@ def main(args):
 
     compile_info_path = os.path.join(rift_fs.info_path, "rift_compile_info.json")
     utils.write_json(compile_info_path, compile_info["proj_config"])   
-    
+
     if not handle_collection(rift_fs, compile_info["proj_config"]):
         logger.error(f"Failed collection phase! Aborting ..")
         return 0

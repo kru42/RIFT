@@ -28,23 +28,23 @@ class RIFTConfig:
             raise FileNotFoundError(f"{self.cargo_proj_folder} does not exist. Set a valid tmp folder")
 
         self.pcf = config.get('Default', 'PcfPath')
-        if not os.path.isfile(self.pcf):
-            self.logger.warning(f"{self.pcf} does not exist. Flirt signature generation will be disabled.")
+        if self.pcf == "NOT_SET" or not os.path.isfile(self.pcf):
+            self.logger.warning(f"PcfPath = {self.pcf} does not exist. Flirt signature generation will be disabled.")
             self.flirt_available = False
         
         self.sigmake = config.get('Default', 'SigmakePath')
-        if not os.path.isfile(self.sigmake):
-            self.logger.warning(f"{self.sigmake} does not exist. Flirt signature generation will be disabled.")
+        if self.sigmake == "NOT_SET" or not os.path.isfile(self.sigmake):
+            self.logger.warning(f"SigMakePath = {self.sigmake} does not exist. Flirt signature generation will be disabled.")
             self.flirt_available = False
         
         self.diaphora = config.get('Default', 'DiaphoraPath')
-        if self.diaphora != 'NOT_SET' and not os.path.isfile(self.diaphora):
-            self.logger.warning(f"{self.diaphora} does not exist. Binary diffing will be disabled.")
+        if self.diaphora == 'NOT_SET' or not os.path.isfile(self.diaphora):
+            self.logger.warning(f"DiaphoraPath = {self.diaphora} does not exist. Binary diffing will be disabled.")
             self.diff_available = False
         
         self.idat = config.get('Default', 'IdatPath')
-        if self.idat != 'NOT_SET' and not os.path.isfile(self.idat):
-            self.logger.warning(f"{self.idat} does not exist. Binary diffing will be disabled.")
+        if self.idat == 'NOT_SET' or not os.path.isfile(self.idat):
+            self.logger.warning(f"IdatPath = {self.idat} does not exist. Binary diffing will be disabled.")
             self.diff_available = False
         
 
