@@ -4,8 +4,6 @@ import subprocess
 
 class RIFTGenerator:
 
-    def __init_(self):
-        pass
 
     def __init__(self, logger, rift_config, compile_info):
         self.logger = logger
@@ -18,8 +16,10 @@ class RIFTGenerator:
         for coff_file in coff_files:
             pat_file = os.path.basename(coff_file)
             pat_file = os.path.join(dest, pat_file.replace(".o", ".pat"))
-            self.logger.info(f"Executing {self.rift_config.pcf} {coff_file} {pat_file}")
-            utils.exec_cmd(f"{self.rift_config.pcf} {coff_file} {pat_file}", False, True)
+            self.logger.debug(f"Executing {self.rift_config.pcf} {coff_file} {pat_file}")
+            # TODO: Decide if we want to capture output or not ..
+            utils.exec_cmd(f"{self.rift_config.pcf} {coff_file} {pat_file}", True, True)
+            # utils.exec_cmd(f"{self.rift_config.pcf} {coff_file} {pat_file}", False, True)
             pat_files.append(pat_file)
         return pat_files
     
@@ -28,8 +28,10 @@ class RIFTGenerator:
 
         cmd = f"{self.rift_config.sigmake} {'-r' if ignore_collisions else ''} * {flirt_output}"
         os.chdir(pat_folder)
-        self.logger.info(f"Executing {cmd}")
-        utils.exec_cmd(cmd, False, True)
+        self.logger.debug(f"Executing {cmd}")
+        # TODO: Decide if we want to capture output or not
+        utils.exec_cmd(cmd, True, True)
+        # utils.exec_cmd(cmd, False, True)
         os.chdir(cur_path)
         return True
     
@@ -61,7 +63,7 @@ class RIFTGenerator:
             sql_path = os.path.join(sql_folder, sql_fname)
             idb_path = os.path.join(idb_folder, idb_fname)
 
-            self.logger.info(f"Generating {sql_path} ..")
+            self.logger.debug(f"Generating {sql_path} ..")
             cmd = [self.rift_config.idat, "-A", "-B", f"-S{self.rift_config.diaphora}", f"-o{idb_path}", coff_file]
             self.set_dph_export_file(sql_path)
             utils.exec_cmd(cmd, True, False)
@@ -71,7 +73,7 @@ class RIFTGenerator:
         for src_sqlite in src_sqlite_files:
             src_base = os.path.splitext(os.path.basename(src_sqlite))[0]
             output_path = os.path.join(sql_diff_folder, f"{target_base}_{src_base}.sqlite")
-            self.logger.info(f"Generating {output_path}, target = {target_sqlite}, source = {src_sqlite}")
+            self.logger.debug(f"Generating {output_path}, target = {target_sqlite}, source = {src_sqlite}")
             utils.exec_cmd(["py", self.rift_config.diaphora, "-o", output_path, target_sqlite, src_sqlite], capture_output=False, check=False)
         return True
 

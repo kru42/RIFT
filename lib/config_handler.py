@@ -87,7 +87,7 @@ class ConfigHandler():
             #    else:
             #        continue
             self.cfg_proj.set(crate_section, crate, version)
-            self.logger.info(f"Added crate: {crate} = {version}")
+            self.logger.debug(f"Added crate: {crate} = {version}")
         
         # Persist updates
         self.__update_config(self.cfg_proj, self.cargo_proj_path)
@@ -101,15 +101,14 @@ class ConfigHandler():
         if os.path.isfile(self.tc_toml_path):
             self.cfg_tc = self.cfg_tc.read(self.tc_toml_path)
         toolchain_section = "toolchain"
-        self.logger.info(self.cfg_tc)
         if toolchain_section not in self.cfg_tc.sections():
             self.cfg_tc.add_section(toolchain_section)
-            self.logger.info(f"Added section 'toolchain to {self.tc_toml_path}")
+            self.logger.debug(f"Added section 'toolchain to {self.tc_toml_path}")
         
         for key in toolchain_data.keys():
             val = toolchain_data[key]
             self.cfg_tc.set(toolchain_section, key, val)
-            self.logger.info(f"Added {key} = {val} to {self.tc_toml_path}")
+            self.logger.debug(f"Added {key} = {val} to {self.tc_toml_path}")
         
         self.__update_config(self.cfg_tc, self.tc_toml_path)
         return True

@@ -111,7 +111,7 @@ class RIFTCompiler:
             stdout = None
             stderr = None
 
-            self.logger.info(f"Executing {check_cmd} for crate {crate}")
+            self.logger.debug(f"Executing {check_cmd} for crate {crate}")
             try:
                 resultcode,stdout,stderr = utils.exec_cmd(check_cmd, capture_output=True, check=False)
             except subprocess.CalledProcessError:
@@ -133,8 +133,7 @@ class RIFTCompiler:
                     continue
             else:
                 # Compile now
-                self.logger.info(f"cmd = {check_cmd} success! building the crate now ..")
-                self.logger.info(f"Executing cmd = {compile_cmd}")
+                self.logger.debug(f"cmd = {check_cmd} success! building the crate now ..")
                 resultcode,stdout,stderr = utils.exec_cmd(compile_cmd, capture_output=False, check=True)
                 self.logger.info(f"cmd = {compile_cmd} , resultcode = {resultcode}")
                 i += 1
@@ -156,7 +155,7 @@ class RIFTCompiler:
     def __fix_error(self, stderr, err_parser):
         """If autofix is enabled, try to fix errors in the Cargo.toml file."""
         err = err_parser.parse_error_msg(stderr)
-        self.logger.info(err)
+        self.logger.debug(err)
         error_code = err["error"]
         entity = err["entity"]
         entity_meta = err["entity_meta"]

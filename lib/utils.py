@@ -4,7 +4,7 @@ import logging
 import os
 import random
 import string
-import patoolib
+from ar import Archive
 import shutil
 import subprocess
 import json
@@ -24,15 +24,28 @@ def delete_loggers():
     logging.getLogger(LOGGER_NAME).filters.clear()
      
 
-def get_logger(filename=None, level=logging.DEBUG):
+def get_logger(filename=None, verbose=False):
     """Initialize a basic logging object."""
+
+    level = logging.INFO
+    if verbose:
+        level = logging.DEBUG
+
     delete_loggers()
-    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
     logger = logging.getLogger(LOGGER_NAME)
+
     sh = logging.StreamHandler()
     sh.setFormatter(formatter)
     sh.setLevel(level)
     logger.addHandler(sh)
+
+    if filename is not None:
+        fh = logging.FileHandler(filename)
+        fh.setFormatter(formatter)
+        fh.setLevel(level)
+        logger.addHandler(fh)
+
     logger.setLevel(level)
     return logger
 
@@ -97,23 +110,24 @@ def remove_line(file_path, line_number):
 
 def unpack_rlib(rlib_file, dest_folder):
     """Takes path to rlib file, moves it to dest_folder, renames to ar and unpacks it to the given destination."""
-    # Check if the file has .rlib extension
+    
+    # Check if the file has .rlib extension, copy the file to temp folder
     if not rlib_file.endswith('.rlib'):
         raise ValueError("The file must have a .rlib extension")
-    
-    tar_basename = os.path.basename(rlib_file).replace(".rlib", ".tar")
-    tar_path = os.path.join(dest_folder, tar_basename)
-    shutil.copy2(rlib_file, tar_path)
-    # TODO: It unpacks likely correctly, but throws error at the end? This needs investigation
-    # Yes, renaming to tar is mandatory 
-    # PatoolError: Command `['C:\\Windows\\system32\\tar.EXE', '--extract', '--file', 
-    # './libwindows-039b1dd4db1a31f6.tar', '--directory', 'Test_folder/']' returned non-zero exit status 1
-    #TODO: Remove printing here
-    try:
-        patoolib.extract_archive(tar_path, outdir=dest_folder, verbosity=-1)
-    except Exception as e:
-        print(e)
-        pass
+    tmp_path = os.path.join(dest_folder, os.path.basename(rlib_file))
+    shutil.copy2(rlib_file, tmp_path)
+    # extract all entries and return dest_folder
+    with open(tmp_path, "rb") as f:
+        archive = Archive(f)
+        for entry in archive:
+            fname = os.path.basename(entry.name)
+            output_path = os.path.join(dest_folder, fname)
+            if os.path.isdir(output_path):
+                continue
+            with open(output_path, "wb") as out_file:
+                content = archive.open(entry, "rb").read()
+                out_file.write(content)
+
     return dest_folder
 
 

@@ -1,7 +1,7 @@
 import re
 import rust_demangler
 
-RE_RUSTLIB = r".{1,250}[\\|\/](.{1,50}-(\d+)\.\d+\.\d+)[\\|\/]src"
+RE_RUSTLIB = r".{1,250}[\\|\/](.{1,50}-\d+\.\d+\.\d+(-.{1,20})?)[\\|\/]src[\\|\/].{1,100}\.rs"
 RE_COMMITHASH = r".{1,250}rustc[\\|\/]([0-9a-zA-Z]{40})[\\|\/]"
 
 

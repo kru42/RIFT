@@ -1,3 +1,4 @@
-pandas==2.2.3
-patool==4.0.0
+pandas==2.3.0
+ar==1.0.0
 rust_demangler==1.0
+Requests==2.32.4

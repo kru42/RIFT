@@ -28,7 +28,7 @@ def handle_compile(compile_info, cargo_proj_path):
     if not rift_compiler.set_cargo_config():
         logger.error(f"Failed setting cargo config file!")
         return False, None
-    logger.info("Building crates now ..")
+    logger.debug("Building crates now ..")
     result = rift_compiler.build_crates()
     result["proj_config"] = rift_compiler.get_proj_config()
     return True, result
@@ -70,7 +70,7 @@ def handle_flirt(rift_fs, rift_gen):
     ordered_coff_files = utils.order_by_libname(coff_files)
     for key in ordered_coff_files.keys():
         flirt_sig_name = os.path.join(rift_fs.flirt_path, rift_gen.get_flirt_name(key))
-        logger.info(f"Generating {flirt_sig_name} for {key}")
+        logger.debug(f"Generating {flirt_sig_name} for {key}")
         coff_files = ordered_coff_files[key]
         try:
             rift_gen.gen_pat(coff_files, rift_fs.pat_path)
@@ -129,6 +129,7 @@ def main(args):
     input = os.path.abspath(os.path.expanduser(args.input))
     # output_folder = args.output
     output_folder = os.path.abspath(os.path.expanduser(args.output))
+    logger = utils.get_logger(args.log, args.verbose)
 
     if args.rift_config == "rift_config.cfg":
         cfg_path = os.path.join(os.getcwd(), args.rift_config)
@@ -163,6 +164,15 @@ def main(args):
     except Exception:
         logger.exception(f"Failed initializing RIFTFileSystem with work_folder = {rift_config.work_folder}, cargo_proj_folder = {rift_config.cargo_proj_folder}")
         return 0
+    if rift_fs.has_old_files(rift_config.work_folder):
+        if not args.cleanup:
+            logger.error(f"{rift_config.work_folder} contains old files from previous runs, clean up manually or enable the --cleanup flag to auto clean up the work env")
+            return 0
+        elif args.cleanup and not rift_fs.cleanup_work_folder():
+            logger.error(f"Failed cleaning up work environment {rift_fs.work_folder}!")
+            return 0
+
+
     if not rift_fs.init_cargo_project():
         return 0
     
@@ -203,5 +213,8 @@ if __name__ == "__main__":
     parser.add_argument("--target", dest="target", help="Target SQLITE file to batch diff against")
     parser.add_argument("--diff-output", dest="diff_output_name", help="Name of JSON file containing diffing information")
     parser.add_argument("--flirt", dest="enable_flirt", action="store_true",help="Enable flirt signature generation")
+    parser.add_argument("--verbose", help="Enable verbose logging", action="store_true")
+    parser.add_argument("--log", help="Enable logging into a file")
+    parser.add_argument("--cleanup", action="store_true", help="Cleans up work environment before running")
     args = parser.parse_args()
     main(args)

@@ -184,8 +184,22 @@ class RIFTFileSystem:
         """Unpacks all .rlib files and extracts the coff files to the coff_folder."""
         for rlib_file in rlib_files:
             utils.unpack_rlib(rlib_file, tmp_folder)
-    
+
         coff_files = utils.get_files_from_dir(tmp_folder, ".o")
         for coff_file in coff_files:
             shutil.move(coff_file, os.path.join(coff_folder, os.path.basename(coff_file)))
         return True
+    
+    def cleanup_work_folder(self):
+        for root, dirs, files in os.walk(self.work_folder):
+            for file in files:
+                try:
+                    file_path = os.path.join(root, file)
+                    os.remove(file_path)
+                except Exception as e:
+                    self.logger.exception(e)
+                    return False
+        return True
+    
+    def has_old_files(self, work_folder):
+        return any(files for _, _, files in os.walk(self.work_folder))
