@@ -1,6 +1,6 @@
 # RIFT (Rust Interactive Function Tool)
 
-RIFT (Rust Interactive Function Tool) is a toolsuite to assist reverse engineers in identifying library code in rust malware. It is a research project developed by the MSTIC-MIRAGE Team and explores library recognition techniques conducted on rust binaries. 
+RIFT (Rust Interactive Function Tool) is a toolsuite to assist reverse engineers in identifying library code in rust malware. It is a research project developed by the MSTIC-MIRAGE Team, explores library recognition techniques conducted on rust binaries and was presented at RECON 2025.
 
 It consists of three core components:
 
