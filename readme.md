@@ -1,13 +1,18 @@
 # RIFT (Rust Interactive Function Tool)
 
-RIFT (Rust Interactive Function Tool) is a toolsuite to assist reverse engineers in identifying library code in rust malware.
-
+RIFT (Rust Interactive Function Tool) is a toolsuite to assist reverse engineers in identifying library code in rust malware. It is a research project developed by the MSTIC-MIRAGE Team and explores library recognition techniques conducted on rust binaries. 
 
 It consists of three core components:
 
 1) RIFT Static Analyzer - IDA Plugin to extract static information from rust binaries
-2) RIFT Client - A set of scripts serving as wrappers around the rust toolchain, in particular cargo and rustup.
+2) RIFT Generator - A set of scripts serving as wrappers around the rust toolchain.
 3) RIFT Diff Applier - IDA Plugin to apply generated binary diffing results on the binary
+
+Currently, the plugins are only developed for Ida Pro and tested on Ida Pro >=9.0.
+RIFT Generator was tested on Windows 10, 64 bit. 
+
+RIFT was mainly tested on Windows malware so far, expanding its capabilities is ongoing.
+We are very much looking forward for contributions by the community.
 
 ## Setup Guide
 
@@ -21,6 +26,7 @@ In order to use the whole toolsuite, the following dependencies need to be insta
 
 * rustup and cargo, preferably via: https://rustup.rs/
 * Python requirements via: `py -m pip install -r requirements.txt`
+* You will have to install Ida, download Diaphora(https://github.com/joxeankoret/diaphora) and FLAIR tools (https://docs.hex-rays.com/user-guide/helper-tools)
 * Furthermore, you will also need to adjust the rift_config.cfg. You need to set the paths to the corresponding tools
 
 ## Usage Guide
@@ -31,10 +37,9 @@ For a hands-on guide, check the `docs` folder for a step-by-step guide on how to
 2) Generate FLIRT signatures and/or diffing information
 3) Apply FLIRT singatures and/or run RIFT Diff Applier
 
-
 ### 1) Static information Extraction
 
-RIFT Static Analyzer is an IDA plugin that extracts various information from a rust binary. The output needs to be fed into the RIFT Client in stage 2 to generate the corresponding signatures and COFF files.
+RIFT Static Analyzer is an IDA plugin that extracts various information from a rust binary. The output needs to be fed into the RIFT Generator in stage 2 to generate the corresponding signatures and COFF files.
 
 In IDA, go to Edit->Plugins and click RIFT Static Analyzer, this will spawn the RIFT Static Analyzer GUI. 
 
@@ -49,9 +54,9 @@ Overall, the static analyzer attempts to extract and store the following informa
 
 ### 2) Generating FLIRT signatures and Binary Diffing Information
 
-RIFT Client is a wrapper around rustup, cargo, Diaphora, Ida and Hexray's FLAIR tools, automating the process of generating the diffing information and flirt signature generation.
+RIFT Generator is a wrapper around rustup, cargo, Diaphora, Ida and Hexray's FLAIR tools, automating the process of generating the diffing information and flirt signature generation.
 
-![RIFT Client Procedure](screenshots/RIFT_Client_Procedure.png)
+![RIFT Generator Procedure](screenshots/RIFT_Client_Procedure.png)
 
 To run, you simply need to run `rift.py` and specify via command line arguments.
 
@@ -74,7 +79,7 @@ options:
 
 ## RIFT Diff Applier
 
-RIFT Diff Applier is an experimental IDA plugin that displays the results from the RIFT Client diffing procedure. Essentially, it installs hotkeys and displays the top matching functions with the highest similarity from all diffed functions.
+RIFT Diff Applier is an experimental IDA plugin that displays the results from the RIFT Generator diffing procedure. Essentially, it installs hotkeys and displays the top matching functions with the highest similarity from all diffed functions.
 
 The approach can be useful if the rust compiler was not properly determined.
 
