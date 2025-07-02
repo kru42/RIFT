@@ -1,5 +1,12 @@
 # RIFT (Rust Interactive Function Tool)
 
+> ⚠️ **Security Warning**
+>
+> This tool is intended to be used **only within a dedicated virtual machine (VM)** environment. Running it outside of a controlled VM may expose your system to security risks, including potential malware execution or data leakage.
+>
+> Please ensure all analysis is conducted in an **isolated, sandboxed VM** with no access to production networks or sensitive data.
+
+
 RIFT (Rust Interactive Function Tool) is a toolsuite to assist reverse engineers in identifying library code in rust malware. It is a research project developed by the MSTIC-MIRAGE Team, explores library recognition techniques conducted on rust binaries and was presented at RECON 2025.
 
 It consists of three core components:
