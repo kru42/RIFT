@@ -153,14 +153,19 @@ class RIFTFileSystem:
 
     def search_rustup_location(self):
         """Searches for default location of .rustup folder."""
+        
+        # Check default location: ~/.rustup
+        default_path = os.path.join(os.path.expanduser("~"), ".rustup")
+        if os.path.isdir(default_path):
+            return os.path.abspath(default_path)
 
-        retval = None
-        user_profile = os.path.expanduser("~")
-        rustup_path = os.path.join(user_profile, ".rustup")
-        if os.path.exists(rustup_path):
-            retval =  os.path.abspath(rustup_path)
-        return retval
-    
+        # Fallback to environment variable: RUSTUP_DIR
+        env_path = os.environ.get("RUSTUP_DIR")
+        if env_path and os.path.isdir(env_path):
+            return os.path.abspath(env_path)
+
+        return None
+
     def get_tc_rlib_folder(self, rustup_path, rustc_version, target):
         """Builds path to toolchain folder, where rlib files are located in."""
         path = os.path.join(rustup_path, "toolchains")
