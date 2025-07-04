@@ -10,7 +10,6 @@ from rift_ida_lib import rift_rustlib
 # Global idastrings
 sc = None
 # https://cpp.docs.hex-rays.com/group___c_o_m_p__.html
-CID_MAPPINGS = {0: "unknown", 1: "msvc", 2: "borland", 3: "watcom", 6: "gnu", 7: "visual_age", 8: "delphi"}
 SUPPORTED_COMPILERS = ["msvc", "gnu"]
 
 def get_file_type():
@@ -21,26 +20,33 @@ def get_file_type():
         return "ELF"
 
 # TODO: Needs testing on other architectures and OS
+def determine_compiler(strings):
+    """
+    Determines the compiler by searching for specific string patterns.
+    """
+    for s in strings:
+        if "Microsoft Visual C++" in s or "MSVCRT" in s:
+            return "msvc"
+        if "GCC:" in s or "MinGW" in s:
+            return "gnu"
+    return None
+
+
 def get_target_triple():
     """Determines the corresponding target triple the binary was compiled for"""
     global sc
 
-    cinfo = ida_ida.compiler_info_t()
     target_triple = None
     ftype = get_file_type()
+    compiler = determine_compiler(sc)
 
-    if ida_ida.inf_get_cc(cinfo):
-
-        cid = cinfo.id
-        compiler = CID_MAPPINGS[cid]
+    if compiler:
         supported = compiler in SUPPORTED_COMPILERS
-
         print(f"TargetCompiler = {compiler}, FileType = {ftype}, supported = {supported}")
         if not supported:
             print(f"Target compiler not supported currently! Aborting ..")
             return None
         
-        # TODO: Distinguish between gnu, gnullvm and more ..
         if ftype == "PE":
             target_triple = f"pc-windows-{compiler}"
         elif ftype == "ELF":
