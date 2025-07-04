@@ -9,8 +9,6 @@ from rift_ida_lib import rift_rustlib
 
 # Global idastrings
 sc = None
-# https://cpp.docs.hex-rays.com/group___c_o_m_p__.html
-SUPPORTED_COMPILERS = ["msvc", "gnu"]
 
 def get_file_type():
     ftype = idaapi.get_file_type_name()
@@ -18,43 +16,21 @@ def get_file_type():
         return "PE"
     elif "ELF" in ftype:
         return "ELF"
-
+    
+    
 # TODO: Needs testing on other architectures and OS
-def determine_compiler(strings):
-    """
-    Determines the compiler by searching for specific string patterns.
-    """
-    for s in strings:
-        if "Microsoft Visual C++" in s or "MSVCRT" in s:
-            return "msvc"
-        if "GCC:" in s or "MinGW" in s:
-            return "gnu"
-    return None
-
-
 def get_target_triple():
     """Determines the corresponding target triple the binary was compiled for"""
     global sc
 
     target_triple = None
     ftype = get_file_type()
-    compiler = determine_compiler(sc)
+    env = rift_rustlib.determine_env(sc)
+    if env is None:
+        env = "gnu" if ftype == "ELF" else "msvc"
+        print(f"[warning] For file type {ftype} could not determine env, setting default to {env}")
+    return f"pc-windows-{env}" if ftype == "PE" else f"unknown-linux-{env}"
 
-    if compiler:
-        supported = compiler in SUPPORTED_COMPILERS
-        print(f"TargetCompiler = {compiler}, FileType = {ftype}, supported = {supported}")
-        if not supported:
-            print(f"Target compiler not supported currently! Aborting ..")
-            return None
-        
-        if ftype == "PE":
-            target_triple = f"pc-windows-{compiler}"
-        elif ftype == "ELF":
-            target_triple = f"unknown-linux-{compiler}"
-    else:
-        print("Failed fetching compiler info! Try using Detect-It-Easy to determine the compiler and setting it manually!")
-
-    return target_triple
 
 class RIFTStaticAnalyzerForm(ida_kernwin.Form):
 
@@ -74,7 +50,7 @@ class RIFTStaticAnalyzerForm(ida_kernwin.Form):
         }
         global sc
         sc = idautils.Strings()
-        sc = [str(s) for s in sc]
+        sc = [str(s).strip("\n") for s in sc]
         ida_kernwin.Form.__init__(self, form, args)
     
     def get_rust_commithash(self, code=1):

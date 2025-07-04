@@ -1,7 +1,7 @@
 import unittest
 import sys
 sys.path.append("../plugins/rift_ida_lib/")
-from rift_rustlib import get_commithash,get_crates
+from rift_rustlib import get_commithash,get_crates,determine_env
 
 
 class TestRiftIdaUtils(unittest.TestCase):
@@ -44,6 +44,38 @@ class TestRiftIdaUtils(unittest.TestCase):
         test_result_2 = None
         self.assertEqual(get_commithash(test_2), test_result_2)
         print("[test] get_commithash_test_2 success!")
+
+    def test_determine_env(self):
+
+        test_1 = [
+            "The result is too small to be represented (UNDERFLOW)",
+            "Total loss of significance (TLOSS)",
+            "Partial loss of significance (PLOSS)",
+            "Mingw-w64 runtime failure:",
+            "Address %p has no image-section"]
+        test_result_1 = "gnu"
+        self.assertEqual(determine_env(test_1), test_result_1)
+        print("[test] determine_env_test_1 success!")
+
+        test_2 = [
+            "__CxxFrameHandler3",
+            "_CxxThrowException",
+            "__current_exception",
+            "__current_exception_context",
+            "_except_handler4_common",
+            "VCRUNTIME140.dll",
+            "_seh_filter_exe"]
+        test_result_2 = "msvc"
+        self.assertEqual(determine_env(test_2), test_result_2)
+        print("[test] determine_env_test_2 success!")
+
+        test_3 = [
+            "std/src/sys/alloc/uefi.rs",
+            "Once instance has previously been poisoned",
+            "one-time initialization may not be performed recursivelyl",
+            "fatal runtime error: rwlock locked for writing"]
+        test_result_3 = "uefi"
+        self.assertEqual(determine_env(test_3), test_result_3)
 
 
 if __name__ == '__main__':
